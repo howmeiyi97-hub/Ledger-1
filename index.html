@@ -524,6 +524,24 @@ function sbRefresh(){
     updateSyncState(); if(!document.querySelector(".overlay")) render();
   });
 }
+function openSetPassword(){
+  if(!navigator.onLine){ toast("Connect to the internet to change your password"); return; }
+  var ov = openModal('<h2>Set your password</h2><p class="small muted" style="margin-top:-8px">Use it to sign in with '+esc(store.sbUser.email||"your email")+' on any device. No email needed.</p><div class="fields"><label class="f">New password<input class="i" type="password" id="np-1" autocomplete="new-password" placeholder="At least 6 characters"></label><label class="f">Confirm password<input class="i" type="password" id="np-2" autocomplete="new-password"></label><div class="err" id="np-err"></div></div><div class="actions"><button class="btn" data-close>Cancel</button><button class="btn primary" id="np-save">Save password</button></div>');
+  var save = $("#np-save",ov), err = $("#np-err",ov);
+  [$("#np-1",ov),$("#np-2",ov)].forEach(function(el){ el.addEventListener("input", function(){ err.textContent=""; }); });
+  save.addEventListener("click", function(){
+    var a = $("#np-1",ov).value, b = $("#np-2",ov).value;
+    if(a.length < 6){ err.textContent = "Use a password with at least 6 characters."; return; }
+    if(a !== b){ err.textContent = "The passwords don't match."; return; }
+    save.disabled = true; save.textContent = "Saving…";
+    store.sb.auth.updateUser({ password:a }).then(function(r){
+      save.disabled = false; save.textContent = "Save password";
+      if(r.error){ err.textContent = /reauth|recent/i.test(r.error.message||"") ? "For security, sign out and sign in again, then set your password." : (/same/i.test(r.error.message||"") ? "That's already your password." : (r.error.message || "Couldn't save the password.")); return; }
+      closeModal(); toast("Password saved. You can now sign in with it.");
+    }, function(){ save.disabled = false; save.textContent = "Save password"; err.textContent = "Couldn't reach your account. Try again."; });
+  });
+  setTimeout(function(){ $("#np-1",ov).focus(); }, 50);
+}
 function syncNow(){
   if(!store.sbUser) return;
   if(!navigator.onLine){ toast("You're offline. Changes will upload when you reconnect."); return; }
@@ -1125,7 +1143,7 @@ function viewSetup(){
   var s = settings();
   var h = '<h1>Settings</h1><p class="sub">Your details appear on invoices. Everything here is private to your account.</p>';
   h += '<div class="grid" style="gap:14px">';
-  if(store.sbUser) h += '<div class="card"><h2>Account</h2><div class="row between" style="align-items:flex-start"><div><div>Signed in as <b>'+esc(store.sbUser.email||"")+'</b></div><div class="small muted" id="sync-status" style="margin-top:4px">'+esc(syncText())+'</div></div><div class="row"><button class="btn" data-act="sync-now">Sync now</button><button class="btn" data-act="signout">Sign out</button></div></div></div>';
+  if(store.sbUser) h += '<div class="card"><h2>Account</h2><div class="row between" style="align-items:flex-start"><div><div>Signed in as <b>'+esc(store.sbUser.email||"")+'</b></div><div class="small muted" id="sync-status" style="margin-top:4px">'+esc(syncText())+'</div></div><div class="row"><button class="btn" data-act="sync-now">Sync now</button><button class="btn" data-act="set-password">Set password</button><button class="btn" data-act="signout">Sign out</button></div></div></div>';
   h += '<div class="card"><h2>Your details</h2><div class="fields"><div class="f2"><label class="f">Your name<input class="i" data-s="name" value="'+esc(s.name)+'"></label><label class="f">Business name (optional)<input class="i" data-s="business" value="'+esc(s.business)+'"></label></div>' +
     '<div class="f2"><label class="f">Email<input class="i" type="email" data-s="email" value="'+esc(s.email)+'"></label><label class="f">Default payment terms (days)<input class="i" type="number" min="0" data-s="dueDays" value="'+esc(s.dueDays)+'"></label></div>' +
     '<label class="f">Address<textarea class="i" data-s="address">'+esc(s.address)+'</textarea></label></div></div>';
@@ -1614,6 +1632,7 @@ document.addEventListener("click", function(ev){
     else if(act==="rep-next"){ ui.repMonth = shiftMonth(ui.repMonth,1); render(); }
     else if(act==="exp-csv") exportCsv();
     else if(act==="sync-now") syncNow();
+    else if(act==="set-password") openSetPassword();
     else if(act==="signout"){
       var pendN = store.outbox.length;
       confirmBox(pendN ? "You have "+pendN+" change"+(pendN===1?"":"s")+" that haven't uploaded yet. If you sign out now they'll be lost. Sign out anyway?" : "Sign out of Ledger on this device?", "Sign out").then(function(ok){
