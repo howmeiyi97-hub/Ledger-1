@@ -20,7 +20,8 @@ Ledger is one self-contained file, `index.html`. Host it on any static site host
 ### Where your data is saved
 
 - **Inside the Claude app:** data syncs to your Claude account. Receipt scanning and Claude recaps work here.
-- **Hosted on the web (Vercel etc.):** you sign in with an email link, and data syncs to the Supabase project `Ledger-1` (`pumgvljnjonbdupqtjec`). Each person can only read and change their own rows (row-level security). The first time you sign in, anything saved in that browser is moved to your account.
+- **Hosted on the web (Vercel etc.):** sign in with email and password (or an emailed sign-in link; "Forgot password?" sends a reset link). Data syncs to the Supabase project `Ledger-1` (`pumgvljnjonbdupqtjec`), and each person can only read and change their own rows (row-level security). The first time you sign in, anything saved in that browser is moved to your account.
+- **Offline:** changes made without a connection are saved on the device and upload automatically when you reconnect. Settings shows your account, the sync status, **Sync now** and **Sign out**.
 - **Offline or without signing in:** "Use Ledger on this device only" saves to the browser's local storage.
 
 Receipt scanning and Claude recaps need the Claude app, so they're hidden on the hosted version.
