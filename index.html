@@ -278,6 +278,10 @@ input.i,select.i,textarea.i{border-radius:14px;background:var(--chip);border-col
 .recap .thinking::after{content:"";display:inline-block;width:1em;animation:dots 1.2s steps(4) infinite}
 @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
 .summhead{display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+
+body.signin .mnav,body.signin .fab{display:none!important}
+.signin-wrap{max-width:420px;margin:8vh auto 0;text-align:center}
+.signin-wrap .card{text-align:left;margin-top:18px}
 </style>
 </head>
 <body>
@@ -291,6 +295,7 @@ input.i,select.i,textarea.i{border-radius:14px;background:var(--chip);border-col
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
 "use strict";
@@ -386,6 +391,12 @@ function put(doc){
   doc = JSON.parse(JSON.stringify(doc));
   doc.updatedAt = Date.now();
   upsertLocal(doc); render();
+  if(store.sbUser){
+    var prevS = writing[doc.id] || Promise.resolve();
+    var row = { user_id:store.sbUser.id, id:doc.id, kind:doc.kind, data:doc, updated_at:new Date().toISOString() };
+    var ps = prevS.then(function(){ return store.sb.from("ledger_docs").upsert(row).then(function(r){ if(r.error) throw r.error; }); }).catch(function(e){ handleWriteError(e); });
+    writing[doc.id] = ps; return ps;
+  }
   if(store.col){
     var prev = writing[doc.id] || Promise.resolve();
     var p = prev.then(function(){ return store.col.doc(doc.id).set(doc); }).catch(function(e){ handleWriteError(e); });
@@ -395,6 +406,7 @@ function put(doc){
 }
 function remove(id){
   removeLocal(id); render();
+  if(store.sbUser){ return store.sb.from("ledger_docs").delete().eq("user_id", store.sbUser.id).eq("id", id).then(function(r){ if(r.error) throw r.error; }).catch(handleWriteError); }
   if(store.col){ return store.col.doc(id).delete().catch(handleWriteError); }
   localSaveAll(); return Promise.resolve();
 }
@@ -406,20 +418,107 @@ function handleWriteError(e){
 }
 function receiptRef(id){ return store.db.doc("data/users/"+store.uid+"/receipts").collection("items").doc(id); }
 function putReceipt(id, data){
+  if(store.sbUser) return store.sb.from("ledger_receipts").upsert({ user_id:store.sbUser.id, id:id, data:data, updated_at:new Date().toISOString() }).then(function(r){ if(r.error) throw r.error; }).catch(handleWriteError);
   if(store.col) return receiptRef(id).set({ data:data, updatedAt:Date.now() }).catch(handleWriteError);
   try { localStorage.setItem("ledger-r-"+id, data); } catch(e){ toast("Receipt too large to keep on this device"); }
   return Promise.resolve();
 }
 function getReceipt(id){
+  if(store.sbUser) return store.sb.from("ledger_receipts").select("data").eq("user_id", store.sbUser.id).eq("id", id).maybeSingle().then(function(r){ return (r.data && r.data.data) || null; }).catch(function(){ return null; });
   if(store.col) return receiptRef(id).get().then(function(s){ return s.exists ? s.data().data : null; }).catch(function(){ return null; });
   try { return Promise.resolve(localStorage.getItem("ledger-r-"+id)); } catch(e){ return Promise.resolve(null); }
 }
 function delReceipt(id){
+  if(store.sbUser) return store.sb.from("ledger_receipts").delete().eq("user_id", store.sbUser.id).eq("id", id).then(function(){}).catch(function(){});
   if(store.col) return receiptRef(id).delete().catch(function(){});
   try { localStorage.removeItem("ledger-r-"+id); } catch(e){}
   return Promise.resolve();
 }
 
+var SB_URL = "https://pumgvljnjonbdupqtjec.supabase.co";
+var SB_KEY = "sb_publishable_h223VzS7cTFIXOQpBhVhTQ_OXMPQHn0";
+function browserDownloads(){
+  return { save:function(o){
+    var blob = o.data instanceof Blob ? o.data : new Blob([o.data]);
+    var u = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = u; a.download = o.filename; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 1500);
+    return Promise.resolve({ status:"saved" });
+  } };
+}
+function sbFetchAll(){
+  var out = [], size = 1000;
+  function page(from){
+    return store.sb.from("ledger_docs").select("data").eq("user_id", store.sbUser.id).order("id").range(from, from+size-1).then(function(r){
+      if(r.error) throw r.error;
+      out = out.concat(r.data.map(function(x){ return x.data; }));
+      return r.data.length === size ? page(from+size) : out;
+    });
+  }
+  return page(0);
+}
+function sbMigrateLocal(remoteDocs){
+  if(remoteDocs.length) return Promise.resolve(false);
+  var local = []; try { local = JSON.parse(localStorage.getItem("ledger-docs")||"[]"); } catch(e){}
+  local = local.filter(function(d){ return d && d.id && d.kind; });
+  if(!local.length) return Promise.resolve(false);
+  var rows = local.map(function(d){ return { user_id:store.sbUser.id, id:d.id, kind:d.kind, data:d, updated_at:new Date().toISOString() }; });
+  return store.sb.from("ledger_docs").upsert(rows).then(function(r){ if(r.error) throw r.error; toast("Moved "+rows.length+" records from this device to your account"); return true; });
+}
+var sbReloadTimer = null;
+function startSupabase(user){
+  if(store.sbUser && store.sbUser.id === user.id) return;
+  store.sbUser = user; store.mode = "loading"; store.note = ""; document.body.classList.remove("signin"); render();
+  sbFetchAll().then(function(docs){
+    return sbMigrateLocal(docs).then(function(moved){ return moved ? sbFetchAll() : docs; });
+  }).then(function(docs){
+    applyDocs(docs); store.mode = "supabase"; lastView = null;
+    if(!S.settings) put(defaultSettings());
+    render();
+    if(store.sbChannel) store.sb.removeChannel(store.sbChannel);
+    store.sbChannel = store.sb.channel("ledger-"+user.id).on("postgres_changes", { event:"*", schema:"public", table:"ledger_docs", filter:"user_id=eq."+user.id }, function(){
+      clearTimeout(sbReloadTimer);
+      sbReloadTimer = setTimeout(function(){ sbFetchAll().then(function(d){ applyDocs(d); if(!document.querySelector(".overlay")) render(); }).catch(function(){}); }, 800);
+    }).subscribe();
+  }).catch(function(e){
+    store.mode = "supabase"; store.note = "Couldn't load your data. Check your connection and reload."; render();
+  });
+}
+function initSupabase(){
+  try { store.sb = window.supabase.createClient(SB_URL, SB_KEY, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true } }); }
+  catch(e){ useLocal("Couldn't reach the sync service. Saving on this device only."); return; }
+  store.sb.auth.onAuthStateChange(function(ev, sess){
+    if(sess && sess.user) startSupabase(sess.user);
+    else if(ev === "SIGNED_OUT"){ store.sbUser = null; if(store.sbChannel){ store.sb.removeChannel(store.sbChannel); store.sbChannel = null; } applyDocs([]); store.mode = "signin"; render(); }
+  });
+  store.sb.auth.getSession().then(function(r){
+    var sess = r && r.data && r.data.session;
+    if(sess && sess.user) startSupabase(sess.user);
+    else if(!store.sbUser){ store.mode = "signin"; render(); }
+  }).catch(function(){ store.mode = "signin"; render(); });
+}
+function viewSignin(){
+  return '<div class="signin-wrap">'+mascot(72)+'<h1 style="margin-top:10px">Welcome to Ledger</h1><p class="sub">Sign in to keep your expenses and invoices in sync on every device.</p>' +
+    '<div class="card"><div class="fields"><label class="f">Email<input class="i" type="email" id="si-email" autocomplete="email" placeholder="you@example.com"></label>' +
+    '<button class="btn primary" id="si-go">Email me a sign-in link</button><div class="small" id="si-msg" style="min-height:18px;color:var(--ink2)"></div></div></div>' +
+    '<p class="small muted" style="margin-top:14px">No password needed. Or <a href="#" data-act="local-only" style="color:var(--accent)">use Ledger on this device only</a>.</p></div>';
+}
+function bindSignin(){
+  var go = $("#si-go"), em = $("#si-email"), msg = $("#si-msg"); if(!go) return;
+  function send(){
+    var email = (em.value||"").trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.style.color = "var(--danger)"; msg.textContent = "Enter a valid email address."; return; }
+    go.disabled = true; msg.style.color = "var(--ink2)"; msg.textContent = "Sending…";
+    store.sb.auth.signInWithOtp({ email:email, options:{ emailRedirectTo: location.origin + location.pathname } }).then(function(r){
+      go.disabled = false;
+      if(r.error){ msg.style.color = "var(--danger)"; msg.textContent = /rate|seconds/i.test(r.error.message||"") ? "Please wait a minute before asking for another link." : "Couldn't send the link: "+r.error.message; return; }
+      msg.style.color = "var(--ok)"; msg.textContent = "Check your email for the sign-in link, then open it on this device.";
+    });
+  }
+  go.addEventListener("click", send);
+  em.addEventListener("keydown", function(ev){ if(ev.key==="Enter") send(); });
+  em.addEventListener("input", function(){ msg.textContent = ""; });
+}
 function useLocal(note){
   store.mode = "local"; store.note = note;
   localLoad(); render();
@@ -428,9 +527,14 @@ function useLocal(note){
 function init(){
   route(); render();
   var c = window.claude;
-  if(!c || typeof c.use !== "function"){ useLocal("Saving on this device only."); return; }
+  if(!c || typeof c.use !== "function"){
+    store.downloads = browserDownloads();
+    if(window.supabase && window.supabase.createClient) initSupabase();
+    else useLocal("Couldn't reach the sync service. Saving on this device only.");
+    return;
+  }
   c.use("downloads").then(function(d){ store.downloads = d; render(); }).catch(function(){});
-  c.use("sample").then(function(sm){ store.sample = sm; if(sm && sm.limits) sm.limits().then(function(l){ store.canImages = !!(l && l.images); }).catch(function(){}); }).catch(function(){});
+  c.use("sample").then(function(sm){ store.sample = sm; if(sm && sm.limits) sm.limits().then(function(l){ store.canImages = !!(l && l.images); $all("#x-scanbtn").forEach(function(b){ b.hidden = !store.canImages; }); }).catch(function(){}); }).catch(function(){});
   Promise.all([c.use("db"), c.use("user")]).then(function(r){
     var db = r[0], user = r[1];
     if(!db || !user){ useLocal("Sign in to sync across devices. Saving on this device only."); return; }
@@ -478,6 +582,7 @@ function renderNav(){
 }
 function syncText(){
   if(store.mode==="cloud") return "Synced to your account";
+  if(store.mode==="supabase") return "Synced to your Ledger account"+(store.sbUser && store.sbUser.email ? " ("+store.sbUser.email+")" : "");
   if(store.mode==="loading") return "Connecting…";
   return store.note || "Saving on this device only";
 }
@@ -727,6 +832,8 @@ function budgetAlert(cat, month, before, after){
 function render(){
   renderNav();
   var v = $("#view");
+  if(store.mode==="signin"){ document.body.classList.add("signin"); v.innerHTML = viewSignin(); bindSignin(); return; }
+  document.body.classList.remove("signin");
   var html = "";
   if(store.note && store.mode!=="loading") html += '<div class="banner warn">'+esc(store.note)+'</div>';
   if(ui.view==="home") html += viewHome();
@@ -880,6 +987,7 @@ function viewSetup(){
     '</div><div class="row" style="margin-top:10px"><input class="i" id="newcur" placeholder="Code, e.g. THB" maxlength="3" style="max-width:140px;text-transform:uppercase"><input class="i" id="newrate" type="number" step="any" placeholder="SGD per unit" style="max-width:150px"><button class="btn sm" data-act="add-rate">Add currency</button></div></div>';
   h += '<div class="card"><h2>Backup and restore</h2><p class="small muted" style="margin-top:-6px">Download everything as one file to keep in Google Drive, or restore from a backup.</p><div class="row"><button class="btn" data-act="backup">Download backup (JSON)</button><button class="btn" data-act="exp-csv">Export expenses (CSV)</button><label class="btn">Restore from backup<input type="file" id="restore" accept=".json,application/json" hidden></label></div>' +
     (store.downloads ? '' : '<p class="small muted">Downloads aren\'t available in this view. Open the app on its own page to download files.</p>') + '</div>';
+  if(store.sbUser) h += '<div class="card"><h2>Account</h2><div class="row between"><span>Signed in as <b>'+esc(store.sbUser.email||"")+'</b></span><button class="btn" data-act="signout">Sign out</button></div></div>';
   h += '<p class="small muted">'+esc(syncText())+'.</p></div>';
   return h;
 }
@@ -924,7 +1032,7 @@ function openExpense(id){
   var newReceipt = null, removeReceipt = false;
   var canScan = !!(store.sample && store.canImages);
   var h = '<h2>'+(e?'Edit expense':'Add expense')+'</h2><div class="fields">' +
-    (canScan ? '<label class="scan" id="x-scanbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 9h8M8 12h8M8 15h5"/></svg><span id="x-scanlbl">Scan a receipt</span><input type="file" id="x-scan" accept="image/*" hidden></label><div class="small muted" id="x-scanmsg" style="margin-top:-4px"></div>' : '') +
+    ('<label class="scan" id="x-scanbtn"'+(canScan?'':' hidden')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 9h8M8 12h8M8 15h5"/></svg><span id="x-scanlbl">Scan a receipt</span><input type="file" id="x-scan" accept="image/*" hidden></label><div class="small muted" id="x-scanmsg" style="margin-top:-4px"></div>') +
     '<div class="row" style="gap:8px;flex-wrap:nowrap"><input class="i big" id="x-amt" inputmode="decimal" placeholder="0.00" value="'+(e?(e.amount/100).toFixed(2):'')+'" style="flex:1;min-width:0"><select class="i" id="x-cur" style="width:100px">'+currencies().map(function(c){ return '<option'+(c===d.currency?' selected':'')+'>'+c+'</option>'; }).join("")+'</select></div>' +
     '<div id="x-conv" class="small muted"></div>' +
     '<div><div class="small muted" style="margin-bottom:6px;font-weight:500">Category</div><div class="cats" id="x-cats">'+cats().map(function(c){ return '<button type="button" class="cat'+(c.name===d.category?' on':'')+'" data-cat="'+esc(c.name)+'"><i style="background:'+esc(c.color)+'"></i>'+esc(c.name)+'</button>'; }).join("")+'</div></div>' +
@@ -979,7 +1087,10 @@ function openExpense(id){
       "merchant = the short shop or brand name a person would use (e.g. 'Toast Box', not the company's legal name). " +
       "category must be exactly one of: " + catNames.join(", ") + " (pick the closest; null if unsure). Today is " + today() + ". " +
       'If the image is not a receipt, reply {"amount": null}.';
-    store.sample.json(prompt, { images:[f], modelTier:"quick" }).then(function(r){
+    toJpeg(f, 1600, 0.85).catch(function(){ return null; }).then(function(jpg){
+      if(!jpg){ btn.classList.remove("busy"); lbl.textContent = "Scan a receipt"; msg.textContent = "This photo's format can't be opened here (often HEIC from iPhone). Take a screenshot of the receipt and scan that, or set Camera › Formats to Most Compatible."; return Promise.reject({code:"__handled"}); }
+      return store.sample.json(prompt, { images:[jpg], modelTier:"quick" });
+    }).then(function(r){
       btn.classList.remove("busy"); lbl.textContent = "Scan another receipt";
       if(!r || typeof r !== "object" || !(Number(r.amount)>0)){ msg.textContent = "That doesn't look like a receipt. Try a clearer photo or fill it in yourself."; return; }
       amt.value = Number(r.amount).toFixed(2);
@@ -995,11 +1106,13 @@ function openExpense(id){
     }).catch(function(err){
       btn.classList.remove("busy"); lbl.textContent = "Scan a receipt";
       var code = err && err.code;
+      if(code==="__handled") return;
       if(code==="not_granted"||code==="sampling_disabled"||code==="images_unavailable"||code==="not_declared"||code==="capability_disabled"||code==="capability_removed"){ btn.hidden = true; msg.textContent = "Receipt scanning isn't available here, so fill in the details yourself."; }
       else if(code==="rate_limited") msg.textContent = "Too many scans right now. Try again in a minute.";
       else if(code==="image_rejected") msg.textContent = "That photo couldn't be used. Try a JPG or PNG.";
       else if(code==="session_expired") msg.textContent = "Sign in to Claude again to scan receipts.";
       else msg.textContent = "Couldn't read that receipt. Try a clearer photo or fill it in yourself.";
+      if(code) msg.textContent += " (code: "+code+")";
     });
   });
   $("#x-cats",root).addEventListener("click", function(ev){ var b = ev.target.closest("[data-cat]"); if(!b) return; userPicked = true; $("#x-hint",root).textContent = ""; d.category = b.getAttribute("data-cat"); $all(".cat",root).forEach(function(x){ x.classList.toggle("on", x===b); }); $("#x-err",root).textContent=""; });
@@ -1030,6 +1143,21 @@ function openExpense(id){
     closeModal(); celebrate(); toast(alertMsg || (e ? "Expense updated" : "Expense added"));
   });
   if(!e) setTimeout(function(){ amt.focus(); }, 50);
+}
+function toJpeg(file, maxSide, q){
+  return new Promise(function(res, rej){
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function(){
+      var w = img.naturalWidth, h = img.naturalHeight; if(!w || !h){ URL.revokeObjectURL(url); rej(); return; }
+      var sc = Math.min(1, maxSide/Math.max(w,h)), cv = document.createElement("canvas");
+      cv.width = Math.round(w*sc); cv.height = Math.round(h*sc);
+      var ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0,0,cv.width,cv.height); ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      URL.revokeObjectURL(url);
+      cv.toBlob(function(b){ b ? res(b) : rej(); }, "image/jpeg", q);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); rej(); };
+    img.src = url;
+  });
 }
 function shrinkImage(file, maxSide, q){
   return new Promise(function(res, rej){
@@ -1327,6 +1455,8 @@ document.addEventListener("click", function(ev){
     else if(act==="rep-prev"){ ui.repMonth = shiftMonth(ui.repMonth,-1); render(); }
     else if(act==="rep-next"){ ui.repMonth = shiftMonth(ui.repMonth,1); render(); }
     else if(act==="exp-csv") exportCsv();
+    else if(act==="signout"){ confirmBox("Sign out of Ledger on this device?", "Sign out").then(function(ok){ if(ok) store.sb.auth.signOut(); }); }
+    else if(act==="local-only"){ ev.preventDefault(); useLocal("Saving on this device only. Reload to sign in."); }
     else if(act==="ai-recap"){ if(!(recaps[ui.repMonth]&&recaps[ui.repMonth].busy)) writeRecap(ui.repMonth); }
     else if(act==="report-pdf") downloadReport();
     else if(act==="backup") backup();

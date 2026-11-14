@@ -15,11 +15,22 @@ A personal web app for tracking expenses and sending simple invoices, built for 
 
 ## Running it
 
-Ledger is one self-contained file, `index.html`. Open it in a browser, or host it on any static site host (GitHub Pages, Netlify, Vercel).
+Ledger is one self-contained file, `index.html`. Host it on any static site host (Vercel, Netlify, GitHub Pages) or open it in a browser.
 
-Outside the Claude app, a few things work differently:
+### Where your data is saved
 
-- Data is saved in your browser's local storage, not synced across devices.
-- Receipt scanning, file downloads and cloud sync are turned off. These use Claude's artifact features.
+- **Inside the Claude app:** data syncs to your Claude account. Receipt scanning and Claude recaps work here.
+- **Hosted on the web (Vercel etc.):** you sign in with an email link, and data syncs to the Supabase project `Ledger-1` (`pumgvljnjonbdupqtjec`). Each person can only read and change their own rows (row-level security). The first time you sign in, anything saved in that browser is moved to your account.
+- **Offline or without signing in:** "Use Ledger on this device only" saves to the browser's local storage.
 
-It loads two libraries from cdnjs: `qrcode-generator` for the PayNow QR code and `jsPDF` for invoice PDFs.
+Receipt scanning and Claude recaps need the Claude app, so they're hidden on the hosted version.
+
+### Supabase setup
+
+Tables: `ledger_docs` (expenses, invoices, clients and settings as JSON) and `ledger_receipts` (receipt photos), both with row-level security on `user_id = auth.uid()`.
+
+For email sign-in links to work on a hosted site, add its address in the Supabase dashboard under **Authentication › URL Configuration**: set **Site URL** to your site and add it to **Redirect URLs**.
+
+The publishable key in `index.html` is meant to be public; row-level security protects the data.
+
+It loads `qrcode-generator` and `jsPDF` from cdnjs, and `supabase-js` from jsDelivr.
