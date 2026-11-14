@@ -9,12 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  color-scheme:dark;
-  --bg:#16131F; --card:#201C30; --ink:#F4F2FC; --ink2:#BDB7D6; --ink3:#958FB2;
-  --line:#312C4A; --line2:#443E68; --accent:#B3A6FF; --accent-ink:#16131F; --accent-soft:#3A3366;
-  --hero:#2E2852; --hero-ink:#F4F2FC; --hero-sub:#CFC7FF; --chip:#2B2740;
-  --danger:#FF8C9A; --danger-soft:#3D2030; --warn:#F2C26B; --warn-soft:#2E2715; --ok:#8BE2B0; --ok-soft:#1C3329;
-  --radius:24px; --shadow:none;
+  color-scheme:light;
+  --bg:#F6F3FF; --card:#FFFFFF; --ink:#1E1A33; --ink2:#5D5878; --ink3:#8B86A6;
+  --line:#E7E1F8; --line2:#D5CCF2; --accent:#7C5CF0; --accent-ink:#FFFFFF; --accent-soft:#EEE9FF;
+  --hero:#7C5CF0; --hero-ink:#FFFFFF; --hero-sub:#E3DBFF; --chip:#F1EDFC;
+  --danger:#D63B57; --danger-soft:#FDECEF; --warn:#A06400; --warn-soft:#FFF3DA; --ok:#1F8A4C; --ok-soft:#E6F6EC;
+  --radius:24px; --shadow:0 1px 2px rgba(60,40,120,.05),0 6px 20px rgba(60,40,120,.06);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -103,7 +103,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 table.t th{text-align:left;font-weight:600;color:var(--ink2);font-size:12.5px;padding:8px 6px;border-bottom:1px solid var(--line)}
 table.t td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
 table.t .r{text-align:right}
-.overlay{position:fixed;inset:0;background:rgba(10,10,8,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:50}
+.overlay{position:fixed;inset:0;background:rgba(30,20,60,.35);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:50}
 .sheet{background:var(--bg);border:1px solid var(--line);border-radius:18px;width:100%;max-width:560px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .sheet.wide{max-width:900px}
 .sheet h2{font-size:19px;margin-bottom:16px}
@@ -137,7 +137,7 @@ main{margin:0 auto;padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 .mnav button.on{color:var(--accent)}
 .mnav svg{width:22px;height:22px}
 .mnav .badge{position:absolute;top:2px;right:28%;margin:0}
-.fab{display:grid;place-items:center;position:fixed;right:max(18px,calc(50% - 470px));bottom:calc(84px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:18px;background:var(--accent);color:var(--accent-ink);border:0;box-shadow:0 8px 24px rgba(179,166,255,.35);z-index:45;cursor:pointer}
+.fab{display:grid;place-items:center;position:fixed;right:max(18px,calc(50% - 470px));bottom:calc(84px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:18px;background:var(--accent);color:var(--accent-ink);border:0;box-shadow:0 8px 24px rgba(139,124,246,.35);z-index:45;cursor:pointer}
 .fab svg{width:26px;height:26px}
 .receipt{max-width:100%;max-height:260px;border-radius:10px;border:1px solid var(--line);display:block}
 .muted{color:var(--ink3)}
@@ -152,7 +152,7 @@ main{margin:0 auto;padding-bottom:calc(120px + env(safe-area-inset-bottom))}
   .mnav button.on{color:var(--accent)}
   .mnav svg{width:22px;height:22px}
   .mnav .badge{position:absolute;top:0;right:22%;margin:0}
-  .fab{display:grid;place-items:center;position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:18px;background:var(--accent);color:var(--accent-ink);border:0;box-shadow:0 8px 24px rgba(179,166,255,.35);z-index:45;cursor:pointer}
+  .fab{display:grid;place-items:center;position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:18px;background:var(--accent);color:var(--accent-ink);border:0;box-shadow:0 8px 24px rgba(139,124,246,.35);z-index:45;cursor:pointer}
   .fab svg{width:26px;height:26px}
   .overlay{padding:0;align-items:flex-end}
   .sheet{border-radius:18px 18px 0 0;max-height:94vh;overflow:auto;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
@@ -169,10 +169,10 @@ main{margin:0 auto;padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 /* Brand kit, violet */
 h1{font-size:30px;font-weight:700;letter-spacing:-.03em}
 h2{font-weight:600;letter-spacing:-.01em}
-.card{border-radius:24px;padding:20px 22px}
+.card{border-radius:24px;padding:20px 22px;box-shadow:var(--shadow)}
 .card.hero{background:var(--hero);border-color:var(--line)}
-.card.hero .val{color:var(--ink)}
-.card.hero .up{color:var(--danger)}.card.hero .down{color:var(--accent)}
+.card.hero .val{color:var(--hero-ink)}
+.card.hero .up{color:#FFD3DB}.card.hero .down{color:#C9F5D9}
 .stat .val{font-size:32px;font-weight:700;letter-spacing:-.03em}
 .btn{border-radius:999px;background:var(--chip);border-color:var(--chip);color:var(--ink);font-weight:600;padding:10px 18px}
 .btn:hover{border-color:var(--line2)}
@@ -263,6 +263,21 @@ input.i,select.i,textarea.i{border-radius:14px;background:var(--chip);border-col
 .budrow{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px;align-items:center}
 .budrow span{display:flex;align-items:center;gap:8px}
 .budrow i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+.aisum{background:var(--accent-soft);border-radius:18px;padding:14px 16px;font-size:14.5px;line-height:1.6;white-space:pre-wrap;margin-top:12px}
+.aisum.wait{color:var(--ink2)}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:4px 0 14px}
+.tile{background:var(--chip);border-radius:18px;padding:12px 14px}
+.tile .k{font-size:12.5px;color:var(--ink2)}
+.tile .v{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+.tile .d{font-size:12px;color:var(--ink3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recap{background:var(--accent-soft);border-radius:18px;padding:16px 18px;line-height:1.6;font-size:14.5px}
+.recap .tips{margin:8px 0 0;padding-left:18px}
+.recap .thinking{color:var(--ink2)}
+.recap .thinking::after{content:"";display:inline-block;width:1em;animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.summhead{display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -469,7 +484,7 @@ function syncText(){
 
 
 function mascot(size, pose){
-  var ink="#3B2F4A", fur="#F7E3C4", belly="#FFF8EC", pink="#F4A6C8", coin="#B3A6FF";
+  var ink="#3B2F4A", fur="#F7E3C4", belly="#FFF8EC", pink="#F4A6C8", coin="#8B7CF6";
   if(pose==="sleep"){
     return '<svg class="mascot sleep" width="'+Math.round(size*1.5)+'" height="'+size+'" viewBox="0 0 96 64" aria-hidden="true">'+
       '<ellipse cx="50" cy="56" rx="30" ry="5" fill="'+coin+'" stroke="'+ink+'" stroke-width="2"/><ellipse cx="50" cy="51" rx="30" ry="5" fill="'+coin+'" stroke="'+ink+'" stroke-width="2"/>'+
@@ -497,7 +512,7 @@ function celebrate(){
   if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   var d=document.createElement("div"); d.className="burst";
   var sp=""; for(var k=0;k<10;k++) sp+='<i style="--a:'+(k*36)+'deg"></i>';
-  d.innerHTML='<div class="b">'+sp+'<div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="#16131F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div></div>';
+  d.innerHTML='<div class="b">'+sp+'<div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div></div>';
   document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 1000);
 }
 function animateCounts(root){
@@ -516,6 +531,94 @@ function animateCounts(root){
   });
 }
 var lastView = null;
+var recaps = {};
+function daysInMonth(m){ var p=m.split("-"); return new Date(+p[0], +p[1], 0).getDate(); }
+function monthSummary(m){
+  var ex = S.expenses.filter(function(e){ return monthOf(e.date)===m; });
+  var total = ex.reduce(function(s,e){ return s+(e.home||0); },0);
+  var prevTotal = monthTotal(shiftMonth(m,-1));
+  var days = m===monthOf(today()) ? +today().slice(8,10) : daysInMonth(m);
+  var biggest = ex.slice().sort(function(a,b){ return (b.home||0)-(a.home||0); })[0] || null;
+  var byCat = {}; ex.forEach(function(e){ byCat[e.category]=(byCat[e.category]||0)+(e.home||0); });
+  var catList = Object.keys(byCat).sort(function(a,b){ return byCat[b]-byCat[a]; }).map(function(k){ return {name:k, amount:byCat[k], share: total? Math.round(byCat[k]/total*100):0}; });
+  var byDay = {}; ex.forEach(function(e){ byDay[e.date]=(byDay[e.date]||0)+(e.home||0); });
+  var busiest = Object.keys(byDay).sort(function(a,b){ return byDay[b]-byDay[a]; })[0] || null;
+  var foreign = ex.filter(function(e){ return e.currency!==HOME; });
+  function homeOf(i){ var r=rateFor(i.currency); return Math.round(invTotal(i)*(isFinite(r)?r:0)); }
+  var issued = S.invoices.filter(function(i){ return i.status!=="draft" && monthOf(i.issueDate||"")===m; });
+  var paid = S.invoices.filter(function(i){ return i.status==="paid" && monthOf(i.paidDate||"")===m; });
+  var overdue = S.invoices.filter(function(i){ return invStatus(i)==="overdue"; });
+  var bud = budgetRows(m);
+  return {
+    month:m, total:total, prevTotal:prevTotal, change: prevTotal? Math.round((total-prevTotal)/prevTotal*100) : null,
+    count:ex.length, perDay: days? Math.round(total/days) : 0, biggest:biggest, categories:catList,
+    busiest: busiest ? {date:busiest, amount:byDay[busiest]} : null, foreignCount:foreign.length,
+    issuedCount:issued.length, issuedTotal:issued.reduce(function(s,i){ return s+homeOf(i); },0),
+    paidCount:paid.length, paidTotal:paid.reduce(function(s,i){ return s+homeOf(i); },0),
+    owed:outstandingTotalHome(), overdueCount:overdue.length,
+    budgets:bud.map(function(r){ return {category:r.name, spent:r.spent, limit:r.limit, pct:r.pct}; })
+  };
+}
+function summaryCard(m){
+  var x = monthSummary(m);
+  var tile = function(k,v,d){ return '<div class="tile"><div class="k">'+k+'</div><div class="v">'+v+'</div>'+(d?'<div class="d">'+d+'</div>':'')+'</div>'; };
+  var h = '<div class="card" style="margin-bottom:14px"><div class="summhead">'+mascot(44)+'<div><h2 style="margin:0">Your '+esc(monthLabel(m))+' summary</h2><div class="small muted">What you spent, earned and are still owed</div></div><button class="btn sm primary" style="margin-left:auto" data-act="report-pdf">Download report (PDF)</button></div>';
+  if(!x.count && !x.issuedCount && !x.paidCount){ return h + '<div class="empty" style="padding:18px">Nothing recorded for '+esc(monthLabel(m))+' yet.</div></div>'; }
+  h += '<div class="tiles">' +
+    tile('Spent', money(x.total), x.change===null ? 'No data last month' : (x.change>0?'+':'')+x.change+'% vs '+monthLabel(shiftMonth(m,-1),true)) +
+    tile('Expenses logged', String(x.count), money(x.perDay)+' a day on average') +
+    tile('Top category', x.categories[0] ? esc(x.categories[0].name) : '—', x.categories[0] ? money(x.categories[0].amount)+' · '+x.categories[0].share+'% of spending' : '') +
+    tile('Biggest expense', x.biggest ? money(x.biggest.home) : '—', x.biggest ? esc(x.biggest.merchant||x.biggest.category)+' · '+esc(shortDate(x.biggest.date)) : '') +
+    tile('Money in', money(x.paidTotal), x.paidCount+' invoice'+(x.paidCount===1?'':'s')+' paid') +
+    tile('Invoices sent', String(x.issuedCount), x.issuedCount ? money(x.issuedTotal)+' billed' : 'None this month') +
+    tile('Still owed', money(x.owed), x.overdueCount ? '<span class="up">'+x.overdueCount+' overdue</span>' : 'Nothing overdue') +
+    (x.budgets.length ? tile('Budgets', (x.budgets.filter(function(b){ return b.pct<=100; }).length)+' of '+x.budgets.length+' on track', x.budgets.filter(function(b){ return b.pct>100; }).map(function(b){ return esc(b.category)+' over'; }).join(', ') || 'All within limit') : '') +
+  '</div>';
+  var r = recaps[m];
+  if(store.sample){
+    h += '<div id="recap-box">'+recapHtml(r)+'</div><div class="row" style="margin-top:10px"><button class="btn'+(r&&r.text?'':' primary')+'" data-act="ai-recap"'+(r&&r.busy?' disabled':'')+'>'+(r&&r.text?'Rewrite summary':'Write my monthly recap')+'</button><span class="small muted">Claude writes a short recap with two tips. Uses a little of your Claude usage.</span></div>';
+  }
+  return h + '</div>';
+}
+function recapHtml(r){
+  if(!r) return '';
+  if(r.error) return '<div class="banner warn" style="margin:0">'+esc(r.error)+'</div>';
+  if(!r.text) return '<div class="recap"><span class="thinking">Claude is reading your month</span></div>';
+  var parts = r.text.split(/\n\s*Tips:?\s*\n?/i);
+  var body = esc(parts[0].trim()).replace(/\n+/g,'<br>');
+  var tips = parts[1] ? '<b style="display:block;margin-top:10px">Tips</b><ul class="tips">'+parts[1].split(/\n/).map(function(t){ return t.replace(/^\s*[-*•\d.]+\s*/,'').trim(); }).filter(Boolean).map(function(t){ return '<li>'+esc(t)+'</li>'; }).join('')+'</ul>' : '';
+  return '<div class="recap">'+body+tips+'</div>';
+}
+function writeRecap(m){
+  var x = monthSummary(m);
+  var data = {
+    month: monthLabel(m), currency: "SGD",
+    spent: x.total/100, previousMonthSpent: x.prevTotal/100, changePercent: x.change, expensesLogged: x.count, averagePerDay: x.perDay/100,
+    categories: x.categories.map(function(c){ return {name:c.name, amount:c.amount/100, sharePercent:c.share}; }),
+    biggestExpense: x.biggest ? {merchant:x.biggest.merchant||x.biggest.category, amount:x.biggest.home/100, date:x.biggest.date} : null,
+    busiestDay: x.busiest ? {date:x.busiest.date, amount:x.busiest.amount/100} : null,
+    foreignCurrencyExpenses: x.foreignCount,
+    invoicesSent: x.issuedCount, invoicedAmount: x.issuedTotal/100, invoicesPaid: x.paidCount, moneyReceived: x.paidTotal/100,
+    stillOwed: x.owed/100, overdueInvoices: x.overdueCount,
+    budgets: x.budgets.map(function(b){ return {category:b.category, spent:b.spent/100, limit:b.limit/100, percentUsed:b.pct}; })
+  };
+  var prompt = "You are writing a monthly recap inside a personal expenses and invoicing app used by one person in Singapore. " +
+    "Using only the data below, write 4 to 6 short, friendly sentences in plain English about their month: how much they spent and how that compares with last month, where the money went, any budgets they went over, and money earned or still owed from invoices. " +
+    "Use S$ amounts rounded to the dollar. Speak to them as 'you'. Don't invent anything that isn't in the data, and don't use markdown or headings. " +
+    "Then write a line that says exactly 'Tips:' followed by 2 short, specific, practical suggestions, each on its own line starting with '- '.\n\nData:\n" + JSON.stringify(data);
+  recaps[m] = { busy:true, text:"" }; render();
+  store.sample(prompt, { modelTier:"default", cache:false, onText:function(u){ recaps[m].text = u.text; var b=$("#recap-box"); if(b) b.innerHTML = recapHtml(recaps[m]); } })
+    .then(function(res){ recaps[m] = { text:res.text }; render(); })
+    .catch(function(e){
+      var code = e && e.code, msg;
+      if(code==="not_granted"||code==="sampling_disabled"||code==="not_declared"||code==="capability_disabled") msg = "Claude recaps aren't available here.";
+      else if(code==="rate_limited") msg = "Too many requests right now. Try again in a minute.";
+      else if(code==="session_expired") msg = "Sign in to Claude again to get a recap.";
+      else msg = "Couldn't write the recap this time. Try again.";
+      recaps[m] = (e && e.text) ? { text:e.text } : { error:msg }; render();
+    });
+}
+
 function suggestCategory(merchant){
   var m = String(merchant||"").trim().toLowerCase(); if(!m) return null;
   var counts = {};
@@ -546,6 +649,71 @@ function budgetCard(m){
     return '<div class="bud '+r.state+'"><div class="top"><b>'+esc(r.name)+'</b><span>'+money(r.spent)+' of '+money(r.limit)+' · '+(left>=0?money(left)+' left':money(-left)+' over')+'</span></div><div class="track"><div class="fill" style="width:'+Math.min(100,Math.max(2,r.pct))+'%"></div></div></div>';
   }).join("")+'</div></div>';
 }
+
+function monthStats(m){
+  var pm = shiftMonth(m,-1);
+  var ex = S.expenses.filter(function(e){ return monthOf(e.date)===m; });
+  var total = ex.reduce(function(a,e){ return a+(e.home||0); },0), prev = monthTotal(pm);
+  var byCat = {}; ex.forEach(function(e){ byCat[e.category]=(byCat[e.category]||0)+(e.home||0); });
+  var cats_ = Object.keys(byCat).sort(function(a,b){ return byCat[b]-byCat[a]; }).map(function(k){ return {name:k, amount:byCat[k], share: total?Math.round(byCat[k]/total*100):0}; });
+  var biggest = ex.slice().sort(function(a,b){ return (b.home||0)-(a.home||0); })[0] || null;
+  var t = today(), days = monthOf(t)===m ? +t.slice(8,10) : new Date(+m.slice(0,4), +m.slice(5,7), 0).getDate();
+  var foreign = ex.filter(function(e){ return e.currency!==HOME; });
+  var issued = S.invoices.filter(function(i){ return monthOf(i.issueDate||"")===m && i.status!=="draft"; });
+  var paid = S.invoices.filter(function(i){ return i.status==="paid" && monthOf(i.paidDate||"")===m; });
+  var toHome = function(i){ var r=rateFor(i.currency); return Math.round(invTotal(i)*(isFinite(r)?r:0)); };
+  return { month:m, total:total, prev:prev, count:ex.length, perDay: days?Math.round(total/days):0, days:days, cats:cats_, biggest:biggest,
+    foreignCount:foreign.length, foreignCurrencies: Object.keys(foreign.reduce(function(o,e){ o[e.currency]=1; return o; },{})),
+    budgets: budgetRows(m), issuedCount:issued.length, issuedTotal:issued.reduce(function(a,i){ return a+toHome(i); },0),
+    paidCount:paid.length, paidTotal:paid.reduce(function(a,i){ return a+toHome(i); },0),
+    overdue: S.invoices.filter(function(i){ return invStatus(i)==="overdue"; }), owed: outstandingTotalHome(), expenses: ex };
+}
+function recapLines(st){
+  var L = [];
+  if(!st.count) L.push("No expenses logged in "+monthLabel(st.month)+" yet.");
+  else {
+    var line = "You spent "+money(st.total)+" across "+st.count+" expense"+(st.count===1?"":"s")+", about "+money(st.perDay)+" a day";
+    if(st.prev){ var d = Math.round((st.total-st.prev)/st.prev*100); line += ", "+(d===0?"the same as":(Math.abs(d)+"% "+(d>0?"more than":"less than")))+" "+monthLabel(shiftMonth(st.month,-1),true); }
+    L.push(line+".");
+    if(st.cats.length) L.push("Most went on "+st.cats[0].name+" ("+money(st.cats[0].amount)+", "+st.cats[0].share+"%)"+(st.cats[1]?", then "+st.cats[1].name+" ("+money(st.cats[1].amount)+")":"")+".");
+    if(st.biggest) L.push("Biggest single expense: "+(st.biggest.merchant||st.biggest.category)+", "+money(st.biggest.home)+" on "+shortDate(st.biggest.date)+".");
+    if(st.foreignCount) L.push(st.foreignCount+" expense"+(st.foreignCount===1?" was":"s were")+" in "+st.foreignCurrencies.join(", ")+".");
+  }
+  var over = st.budgets.filter(function(b){ return b.state==="over"; }), warn = st.budgets.filter(function(b){ return b.state==="warn"; });
+  if(st.budgets.length){
+    if(over.length) L.push("Over budget: "+over.map(function(b){ return b.name+" ("+money(b.spent-b.limit)+" over)"; }).join(", ")+".");
+    if(warn.length) L.push("Close to budget: "+warn.map(function(b){ return b.name+" ("+b.pct+"%)"; }).join(", ")+".");
+    if(!over.length && !warn.length) L.push("All "+st.budgets.length+" budget"+(st.budgets.length===1?" is":"s are")+" on track.");
+  }
+  if(st.issuedCount || st.paidCount) L.push("Invoices: "+st.issuedCount+" sent ("+money(st.issuedTotal)+"), "+st.paidCount+" paid ("+money(st.paidTotal)+").");
+  if(st.overdue.length) L.push(st.overdue.length+" invoice"+(st.overdue.length===1?" is":"s are")+" overdue, with "+money(st.owed)+" still owed to you.");
+  return L;
+}
+function downloadReport(){
+  if(!window.jspdf || !window.jspdf.jsPDF){ toast("The PDF tool didn't load. Check your connection and reload."); return; }
+  if(!store.downloads){ toast("Downloads aren't available in this view."); return; }
+  var st = monthStats(ui.repMonth), s = settings(), doc = new window.jspdf.jsPDF({unit:"pt", format:"a4"});
+  var L = 48, R = 547, y = 64;
+  function need(h){ if(y + h > 790){ doc.addPage(); y = 64; } }
+  function head(t){ need(40); y += 10; doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(20); doc.text(t, L, y); y += 8; doc.setDrawColor(225); doc.line(L, y, R, y); y += 18; doc.setFont("helvetica","normal"); doc.setFontSize(10.5); }
+  function row(cols, bold){ need(18); doc.setFont("helvetica", bold?"bold":"normal"); doc.setTextColor(bold?110:30); cols.forEach(function(c){ doc.text(String(c[0]), c[1], y, c[2]?{align:"right"}:{}); }); y += 16; }
+  doc.setFont("helvetica","bold"); doc.setFontSize(20); doc.setTextColor(20); doc.text("Monthly report: "+monthLabel(st.month), L, y);
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(120); doc.text((s.business||s.name||"Ledger")+" · generated "+shortDate(today()), L, y+16); y += 44;
+  doc.setTextColor(30); doc.setFontSize(10.5);
+  [["Total spent", money(st.total)], ["Last month", money(st.prev)], ["Expenses", String(st.count)], ["Average per day", money(st.perDay)], ["Owed to you", money(st.owed)]].forEach(function(k,ix){
+    var x = L + (ix%3)*170, yy = y + Math.floor(ix/3)*40; doc.setTextColor(120); doc.setFontSize(9); doc.text(k[0].toUpperCase(), x, yy); doc.setTextColor(20); doc.setFontSize(14); doc.setFont("helvetica","bold"); doc.text(k[1], x, yy+17); doc.setFont("helvetica","normal");
+  });
+  y += 90;
+  head("Summary"); recapLines(st).forEach(function(t){ var w = doc.splitTextToSize("•  "+t, R-L); need(w.length*14); doc.setTextColor(30); doc.text(w, L, y); y += w.length*14 + 2; });
+  var rc = recaps[st.month]; if(rc && rc.text && !rc.busy){ head("Claude's recap"); var w2 = doc.splitTextToSize(rc.text.trim(), R-L); w2.forEach(function(line){ need(14); doc.setTextColor(30); doc.text(line, L, y); y += 14; }); }
+  if(st.cats.length){ head("Spending by category"); row([["Category",L],["Share",420,true],["Amount (SGD)",R,true]], true); st.cats.forEach(function(c){ row([[c.name,L],[c.share+"%",420,true],[money(c.amount),R,true]]); }); }
+  if(st.budgets.length){ head("Budgets"); row([["Category",L],["Spent",360,true],["Budget",450,true],["Status",R,true]], true); st.budgets.forEach(function(b){ row([[b.name,L],[money(b.spent),360,true],[money(b.limit),450,true],[b.state==="over"?"Over":(b.state==="warn"?b.pct+"%":"On track"),R,true]]); }); }
+  var inv = S.invoices.filter(function(i){ return monthOf(i.issueDate||"")===st.month || (i.status==="paid" && monthOf(i.paidDate||"")===st.month) || invStatus(i)==="overdue"; });
+  if(inv.length){ head("Invoices"); row([["Invoice",L],["Client",140],["Status",360],["Amount",R,true]], true); inv.forEach(function(i){ row([[i.number,L],[clientName(i.clientId).slice(0,34),140],[({draft:"Draft",sent:"Sent",paid:"Paid",overdue:"Overdue"})[invStatus(i)],360],[money(invTotal(i),i.currency),R,true]]); }); }
+  if(st.expenses.length){ head("All expenses"); row([["Date",L],["Merchant",120],["Category",330],["SGD",R,true]], true); st.expenses.slice().sort(function(a,b){ return a.date.localeCompare(b.date); }).forEach(function(e){ row([[shortDate(e.date),L],[(e.merchant||"-").slice(0,32),120],[e.category,330],[money(e.home),R,true]]); }); }
+  store.downloads.save({ filename:"ledger-report-"+st.month+".pdf", data: doc.output("blob") }).then(function(){ toast("Report saved"); }).catch(function(e){ if(e && e.code==="declined") return; toast("Couldn't save the report."); });
+}
+
 function budgetAlert(cat, month, before, after){
   var lim = budgets()[cat]; if(!(lim>0)) return null;
   var pb = before/lim*100, pa = after/lim*100;
@@ -587,7 +755,7 @@ function viewHome(){
   var diff = prev ? Math.round((cur-prev)/prev*100) : null;
   var od = S.invoices.filter(function(i){ return invStatus(i)==="overdue"; });
   var name = settings().name ? ", "+esc(settings().name.split(" ")[0]) : "";
-  var h = '<div class="logo"><i><svg viewBox="0 0 24 24" fill="none" stroke="#16131F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M17 7.5C16 6 14.3 5.5 12 5.5c-3 0-4.5 1.4-4.5 3.2 0 4.3 9.5 2.2 9.5 6.6 0 1.9-1.8 3.2-5 3.2-2.4 0-4.2-.7-5-2.2"/></svg></i>Ledger</div><div class="hello"><div><h1>Hello'+name+'</h1><p class="sub">'+esc(monthLabel(m))+' at a glance</p></div>'+mascot(64)+'</div>';
+  var h = '<div class="logo"><i><svg viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M17 7.5C16 6 14.3 5.5 12 5.5c-3 0-4.5 1.4-4.5 3.2 0 4.3 9.5 2.2 9.5 6.6 0 1.9-1.8 3.2-5 3.2-2.4 0-4.2-.7-5-2.2"/></svg></i>Ledger</div><div class="hello"><div><h1>Hello'+name+'</h1><p class="sub">'+esc(monthLabel(m))+' at a glance</p></div>'+mascot(64)+'</div>';
   if(od.length) h += '<div class="banner bad" style="cursor:pointer" data-go="invoices">'+od.length+' invoice'+(od.length>1?'s are':' is')+' overdue: '+od.map(function(i){ return esc(i.number)+' ('+esc(clientName(i.clientId))+')'; }).join(", ")+'. Tap to review.</div>';
   if(!settings().paynowId && !settings().bankAcct) h += '<div class="banner info" style="cursor:pointer" data-go="setup">Add your PayNow and bank details in Settings so they appear on your invoices.</div>';
   h += '<div class="grid g3" style="margin-bottom:16px">' +
@@ -673,8 +841,7 @@ function viewReports(){
   var mt = months.map(monthTotal); var mmax = Math.max.apply(null, mt.concat([1]));
   var h = '<div class="row between" style="margin-bottom:6px"><h1>Reports</h1><div class="row"><button class="btn sm" data-act="exp-csv">Export expenses (CSV)</button></div></div>';
   h += '<div class="row" style="margin:6px 0 16px"><button class="btn sm" data-act="rep-prev" aria-label="Previous month">‹</button><b style="min-width:130px;text-align:center">'+esc(monthLabel(m))+'</b><button class="btn sm" data-act="rep-next" aria-label="Next month">›</button></div>';
-  h += '<div class="grid g3" style="margin-bottom:14px"><div class="card stat hero"><div class="lbl">Total spent</div><div class="val" data-count="'+cur+'">'+money(cur)+'</div><div class="hint">'+(diff===null?'No data for '+monthLabel(pm,true):('<span class="'+(diff>0?'up':'down')+'">'+(diff>0?'+':'')+diff+'%</span> vs '+monthLabel(pm,true)+' ('+money(prev)+')'))+'</div></div>' +
-    '<div class="card stat"><div class="lbl">Outstanding invoices</div><div class="val" data-count="'+outstandingTotalHome()+'">'+money(outstandingTotalHome())+'</div><div class="hint">'+outstanding().length+' open, in '+HOME+' at saved rates</div></div></div>';
+  h += summaryCard(m);
   h += '<div class="grid g2"><div class="card"><h2>Spending by category</h2>' + (keys.length ? '<div class="bars">'+keys.map(function(c){
       return '<div class="bar"><span>'+esc(c)+'</span><div class="track"><div class="fill" style="width:'+Math.max(2,Math.round(byCat[c]/max*100))+'%;background:'+esc(catColor(c))+'"></div></div><span class="v">'+money(byCat[c])+' <span class="muted small">'+Math.round(byCat[c]/cur*100)+'%</span></span></div>';
     }).join("")+'</div>' : '<div class="empty">No expenses in '+esc(monthLabel(m))+'.</div>') + '</div>';
@@ -1160,6 +1327,8 @@ document.addEventListener("click", function(ev){
     else if(act==="rep-prev"){ ui.repMonth = shiftMonth(ui.repMonth,-1); render(); }
     else if(act==="rep-next"){ ui.repMonth = shiftMonth(ui.repMonth,1); render(); }
     else if(act==="exp-csv") exportCsv();
+    else if(act==="ai-recap"){ if(!(recaps[ui.repMonth]&&recaps[ui.repMonth].busy)) writeRecap(ui.repMonth); }
+    else if(act==="report-pdf") downloadReport();
     else if(act==="backup") backup();
     else if(act==="add-cat"){
       var n = $("#newcat").value.trim(); if(!n) return;
